@@ -51,7 +51,16 @@ $username = $payload['username'];
 if ($user = $DB->get_record('user', ['username' => $username, 'deleted' => 0])) {
     complete_user_login($user);
     local_ssologin_log_attempt('success', $user->id, $username);
-    redirect(new moodle_url('/'));
+
+    $redirectUrl = new moodle_url('/');
+    if (!empty($payload['redirect'])) {
+        $redirectParam = clean_param($payload['redirect'], PARAM_URL);
+        if (!empty($redirectParam)) {
+            $redirectUrl = new moodle_url($redirectParam);
+        }
+    }
+
+    redirect($redirectUrl);
 } else {
     local_ssologin_log_attempt('fail', 0, $username);
     throw new moodle_exception('loginfailure', 'local_ssologin', '', $username);
