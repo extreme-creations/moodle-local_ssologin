@@ -4,6 +4,16 @@ This plugin allows single sign-on (SSO) authentication in Moodle from an externa
 
 ---
 
+## 🔀 Fork Changes
+
+This fork modifies `login.php` with two changes from [the original](https://github.com/richardg7/moodle-local_ssologin):
+
+1. **Removed `require_login()`** — The original plugin redirects (303) users who are not already logged in, which prevents SSO from working. This fork allows unauthenticated users to reach the SSO endpoint so they can log in via the external system.
+
+2. **Optional `redirect` parameter** — After successful SSO login, you can pass a `redirect` query parameter (URL) to send the user to a specific page instead of the Moodle home. Example: `.../login.php?data=...&sig=...&redirect=https://example.com/course/view.php?id=123`
+
+---
+
 ## 🚀 Installation
 
 1. Access Moodle as **administrator**
