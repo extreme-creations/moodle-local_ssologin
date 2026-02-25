@@ -27,7 +27,9 @@ require_once($CFG->libdir . '/authlib.php');
 require_once(__DIR__.'/locallib.php');
 
 // Ensure the user is logged in or has appropriate permissions.
-require_login();
+// START EXTREME EDIT - original code will 303 redirect if a user is not already logged in. Makes the plugin a bit pointless if you can't proceed.
+// require_login();
+// END EXTREME EDIT
 
 $secret = get_config('local_ssologin', 'secretkey');
 $tokenexpire = get_config('local_ssologin', 'tokenexpire');
@@ -52,15 +54,13 @@ if ($user = $DB->get_record('user', ['username' => $username, 'deleted' => 0])) 
     complete_user_login($user);
     local_ssologin_log_attempt('success', $user->id, $username);
 
-    $redirectUrl = new moodle_url('/');
-    if (!empty($payload['redirect'])) {
-        $redirectParam = clean_param($payload['redirect'], PARAM_URL);
-        if (!empty($redirectParam)) {
-            $redirectUrl = new moodle_url($redirectParam);
-        }
+    // START EXTREME EDIT - redirect back to the origin if a redirect query string parameter is provided
+    if ($redirectQuery = optional_param('redirect', null, PARAM_URL)) {
+        redirect($redirectQuery);
     }
+    // END EXTREME EDIT
 
-    redirect($redirectUrl);
+    redirect(new moodle_url('/'));
 } else {
     local_ssologin_log_attempt('fail', 0, $username);
     throw new moodle_exception('loginfailure', 'local_ssologin', '', $username);
