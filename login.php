@@ -48,20 +48,34 @@ if (time() - $payload['timestamp'] > $tokenexpire) {
     throw new moodle_exception('invalidtoken', 'local_ssologin');
 }
 
-$username = $payload['username'];
+// START EXTREME EDIT
+$user = null;
+$username = $payload['username'] ?? null;
+$email = $payload['email'] ?? null;
 
-if ($user = $DB->get_record('user', ['username' => $username, 'deleted' => 0])) {
+// Try to find user by email first if provided in payload.
+if ($email) {
+    if ($user = $DB->get_record('user', ['email' => $email, 'deleted' => 0])) {
+        $username = $user->username;
+    }
+}
+
+// Fallback to username search if email match not found and username exists.
+if (!$user && $username) {
+    $user = $DB->get_record('user', ['username' => $username, 'deleted' => 0]);
+}
+
+if ($user) {
     complete_user_login($user);
     local_ssologin_log_attempt('success', $user->id, $username);
 
-    // START EXTREME EDIT - redirect back to the origin if a redirect query string parameter is provided
     if ($redirectQuery = optional_param('redirect', null, PARAM_URL)) {
         redirect($redirectQuery);
     }
-    // END EXTREME EDIT
 
     redirect(new moodle_url('/'));
 } else {
-    local_ssologin_log_attempt('fail', 0, $username);
-    throw new moodle_exception('loginfailure', 'local_ssologin', '', $username);
+    local_ssologin_log_attempt('fail', 0, $username ?? $email);
+    throw new moodle_exception('loginfailure', 'local_ssologin', '', $username ?? $email);
 }
+// END EXTREME EDIT
