@@ -10,7 +10,9 @@ This fork modifies `login.php` with two changes from [the original](https://gith
 
 1. **Removed `require_login()`** — The original plugin redirects (303) users who are not already logged in, which prevents SSO from working. This fork allows unauthenticated users to reach the SSO endpoint so they can log in via the external system.
 
-2. **Optional `redirect` parameter** — After successful SSO login, you can pass a `redirect` query parameter (URL) to send the user to a specific page instead of the Moodle home. Example: `.../login.php?data=...&sig=...&redirect=https://example.com/course/view.php?id=123`
+2. **Added support for emails to be provided in the payload** — The original plugin only supports usernames. This fork allows emails to be provided in the payload, which will be used to find the user in Moodle.
+
+3. **Optional `redirect` parameter** — After successful SSO login, you can pass a `redirect` query parameter (URL) to send the user to a specific page instead of the Moodle home. Example: `.../login.php?data=...&sig=...&redirect=https://example.com/course/view.php?id=123`
 
 ---
 
